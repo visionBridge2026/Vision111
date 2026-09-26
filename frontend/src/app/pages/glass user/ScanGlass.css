@@ -1,0 +1,638 @@
+/* =========================================================
+   VisionBridge Glass User Login
+   ========================================================= */
+
+.user-login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px 24px;
+
+  background: #030816;
+
+  color: #ffffff;
+}
+
+.user-login-card {
+  width: min(100%, 520px);
+
+  min-height: 650px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 48px 40px;
+
+  background: #071020;
+
+  border-radius: 24px;
+}
+
+
+/* =========================================================
+   Back
+   ========================================================= */
+
+.user-login-back {
+  align-self: flex-start;
+
+  min-width: 44px;
+  min-height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-bottom: 30px;
+
+  padding: 8px 12px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: #c9d4e5;
+
+  font: inherit;
+
+  cursor: pointer;
+}
+
+.user-login-back:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.user-login-back:focus-visible {
+  outline: 3px solid #65c7ff;
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   Logo
+   ========================================================= */
+
+.user-login-logo {
+  display: block;
+
+  width: min(100%, 230px);
+  height: auto;
+
+  margin-bottom: 32px;
+
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   Heading
+   ========================================================= */
+
+.user-login-title {
+  margin: 0 0 12px;
+
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  line-height: 1.25;
+
+  text-align: center;
+}
+
+.user-login-description {
+  max-width: 390px;
+
+  margin: 0;
+
+  color: #c9d4e5;
+
+  font-size: 1rem;
+  line-height: 1.6;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   Scan Button
+   ========================================================= */
+
+.user-login-scan-button {
+  width: min(100%, 360px);
+
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  margin-top: 34px;
+
+  padding: 14px 24px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: #3f82f1;
+  color: #ffffff;
+
+  font-size: 1.15rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.user-login-scan-button:hover {
+  background: #5593f5;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.user-login-scan-button:active {
+  background: #2f70d8;
+
+  transform: translateY(0);
+}
+
+.user-login-scan-button:focus-visible {
+  outline: 3px solid #65c7ff;
+  outline-offset: 4px;
+}
+
+.user-login-scan-icon {
+  font-size: 1.35rem;
+}
+
+
+/* =========================================================
+   Help text
+   ========================================================= */
+
+.user-login-help {
+  max-width: 340px;
+
+  margin: 18px 0 0;
+
+  color: #8fa1b8;
+
+  font-size: 0.875rem;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   QR MODAL
+   ========================================================= */
+
+.qr-modal-backdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(0, 0, 0, 0.78);
+
+  overflow-y: auto;
+}
+
+
+/* =========================================================
+   Modal
+   ========================================================= */
+
+.qr-modal {
+  width: min(100%, 480px);
+
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+
+  overflow-y: auto;
+
+  padding: 28px;
+
+  background: #071020;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+
+/* =========================================================
+   Modal Header
+   ========================================================= */
+
+.qr-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 24px;
+}
+
+.qr-modal-header h2 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: clamp(1.35rem, 4vw, 1.7rem);
+  line-height: 1.25;
+}
+
+.qr-modal-header p {
+  max-width: 360px;
+
+  margin: 0;
+
+  color: #c9d4e5;
+
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   Close Button
+   ========================================================= */
+
+.qr-modal-close {
+  flex: 0 0 44px;
+
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: #ffffff;
+
+  font-size: 1.8rem;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.qr-modal-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.qr-modal-close:focus-visible {
+  outline: 3px solid #65c7ff;
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   Camera
+   ========================================================= */
+
+.qr-scanner-container {
+  position: relative;
+
+  width: 100%;
+  min-height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 18px;
+
+  background: #02050d;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.qr-reader {
+  width: 100%;
+}
+
+.qr-reader video {
+  display: block;
+
+  width: 100% !important;
+  height: auto !important;
+
+  max-height: 420px;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   Scanner status
+   ========================================================= */
+
+.qr-scanner-status {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(2, 5, 13, 0.72);
+
+  color: #ffffff;
+
+  text-align: center;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   Hint
+   ========================================================= */
+
+.qr-modal-hint {
+  margin: 18px 0 0;
+
+  color: #c9d4e5;
+
+  font-size: 0.9rem;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   Error
+   ========================================================= */
+
+.qr-error {
+  margin-top: 18px;
+
+  padding: 16px;
+
+  border-radius: 14px;
+
+  background: rgba(180, 40, 40, 0.14);
+
+  border: 1px solid rgba(255, 100, 100, 0.35);
+
+  color: #ffffff;
+}
+
+.qr-error strong {
+  display: block;
+
+  margin-bottom: 6px;
+}
+
+.qr-error p {
+  margin: 0 0 14px;
+
+  color: #f0d5d5;
+
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   Retry
+   ========================================================= */
+
+.qr-retry-button {
+  min-width: 110px;
+  min-height: 44px;
+
+  padding: 10px 18px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: #3f82f1;
+
+  color: #ffffff;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.qr-retry-button:hover {
+  background: #5593f5;
+}
+
+.qr-retry-button:focus-visible {
+  outline: 3px solid #65c7ff;
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   Success
+   ========================================================= */
+
+.qr-success {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 12px;
+
+  margin-top: 18px;
+
+  padding: 16px;
+
+  border-radius: 14px;
+
+  background: rgba(55, 180, 110, 0.12);
+
+  border: 1px solid rgba(90, 220, 145, 0.35);
+
+  color: #ffffff;
+}
+
+.qr-success-icon {
+  flex: 0 0 32px;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #318c61;
+
+  color: #ffffff;
+
+  font-weight: 700;
+}
+
+.qr-success strong {
+  display: block;
+
+  margin-bottom: 4px;
+}
+
+.qr-success p {
+  margin: 0;
+
+  color: #cce9d9;
+
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   html5-qrcode controls
+   ========================================================= */
+
+#visionbridge-qr-reader__dashboard {
+  padding: 12px !important;
+
+  color: #ffffff;
+}
+
+#visionbridge-qr-reader__dashboard button,
+#visionbridge-qr-reader__dashboard select {
+  min-height: 44px;
+
+  margin: 4px;
+
+  padding: 8px 14px;
+
+  border-radius: 8px;
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  background: #16233a;
+
+  color: #ffffff;
+
+  font: inherit;
+
+  cursor: pointer;
+}
+
+#visionbridge-qr-reader__dashboard button:focus-visible,
+#visionbridge-qr-reader__dashboard select:focus-visible {
+  outline: 3px solid #65c7ff;
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .user-login-page {
+    padding: 20px 16px;
+  }
+
+  .user-login-card {
+    min-height: calc(100vh - 40px);
+    min-height: calc(100dvh - 40px);
+
+    padding: 36px 24px;
+
+    border-radius: 18px;
+  }
+
+  .qr-modal-backdrop {
+    align-items: flex-end;
+
+    padding: 12px;
+  }
+
+  .qr-modal {
+    width: 100%;
+
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+
+    padding: 22px 18px;
+
+    border-radius: 22px;
+  }
+
+  .qr-scanner-container {
+    min-height: 280px;
+  }
+}
+
+
+/* =========================================================
+   Reduced motion
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .user-login-scan-button {
+    transition: none;
+  }
+
+  .user-login-scan-button:hover {
+    transform: none;
+  }
+}
+
+
+/* =========================================================
+   Forced colors
+   ========================================================= */
+
+@media (forced-colors: active) {
+  .user-login-card,
+  .qr-modal {
+    border: 2px solid CanvasText;
+  }
+
+  .user-login-scan-button,
+  .qr-modal-close,
+  .qr-retry-button {
+    border: 2px solid ButtonText;
+
+    background: ButtonFace;
+    color: ButtonText;
+  }
+}

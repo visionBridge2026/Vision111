@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./WelcomeScreen.css";
+import { useNavigate } from "react-router-dom";
 
+import "./WelcomeScreen.css";
 import visionBridgeLogo from "../../assets/images/visionbridge-logo.png";
 
 const SPLASH_DURATION = 2000;
 
 function WelcomeScreen() {
   const [showSplash, setShowSplash] = useState(true);
+
+  const navigate = useNavigate();
+
   const welcomeHeadingRef = useRef(null);
 
   useEffect(() => {
@@ -22,20 +26,6 @@ function WelcomeScreen() {
       welcomeHeadingRef.current?.focus();
     }
   }, [showSplash]);
-
-  const handleRoleSelection = (role) => {
-    /*
-     * Navigation will be connected when we build
-     * the individual login screens.
-     *
-     * Example roles:
-     * - glass-user
-     * - family-member
-     * - agent
-     */
-
-    console.log(`Selected role: ${role}`);
-  };
 
   if (showSplash) {
     return (
@@ -85,10 +75,11 @@ function WelcomeScreen() {
             className="welcome-card__options"
             aria-label="Account type"
           >
+
             <button
               type="button"
               className="welcome-role-button"
-              onClick={() => handleRoleSelection("glass-user")}
+              onClick={() => navigate("/ScanGlass")}
             >
               <span>Glass User</span>
             </button>
@@ -96,7 +87,9 @@ function WelcomeScreen() {
             <button
               type="button"
               className="welcome-role-button"
-              onClick={() => handleRoleSelection("family-member")}
+              onClick={() => {
+                console.log("Family Member selected");
+              }}
             >
               <span>Family Member</span>
             </button>
@@ -104,10 +97,13 @@ function WelcomeScreen() {
             <button
               type="button"
               className="welcome-role-button"
-              onClick={() => handleRoleSelection("agent")}
+              onClick={() => {
+                console.log("Agent selected");
+              }}
             >
               <span>Agent</span>
             </button>
+
           </div>
 
         </div>
