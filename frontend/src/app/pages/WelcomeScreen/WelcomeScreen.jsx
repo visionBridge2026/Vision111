@@ -1,0 +1,119 @@
+import React, { useEffect, useRef, useState } from "react";
+import "./WelcomeScreen.css";
+
+import visionBridgeLogo from "../../assets/images/visionbridge-logo.png";
+
+const SPLASH_DURATION = 2000;
+
+function WelcomeScreen() {
+  const [showSplash, setShowSplash] = useState(true);
+  const welcomeHeadingRef = useRef(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setShowSplash(false);
+    }, SPLASH_DURATION);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!showSplash) {
+      welcomeHeadingRef.current?.focus();
+    }
+  }, [showSplash]);
+
+  const handleRoleSelection = (role) => {
+    /*
+     * Navigation will be connected when we build
+     * the individual login screens.
+     *
+     * Example roles:
+     * - glass-user
+     * - family-member
+     * - agent
+     */
+
+    console.log(`Selected role: ${role}`);
+  };
+
+  if (showSplash) {
+    return (
+      <main
+        className="welcome-splash"
+        aria-label="VisionBridge loading"
+      >
+        <div className="welcome-splash__content">
+          <img
+            src={visionBridgeLogo}
+            alt="VisionBridge"
+            className="welcome-splash__logo"
+          />
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="welcome-page">
+      <section
+        className="welcome-card"
+        aria-labelledby="welcome-heading"
+      >
+        <div className="welcome-card__content">
+
+          <img
+            src={visionBridgeLogo}
+            alt="VisionBridge"
+            className="welcome-card__logo"
+          />
+
+          <h1
+            id="welcome-heading"
+            ref={welcomeHeadingRef}
+            className="welcome-card__heading"
+            tabIndex="-1"
+          >
+            Welcome to VisionBridge
+          </h1>
+
+          <p className="welcome-card__description">
+            Choose how you want to continue.
+          </p>
+
+          <div
+            className="welcome-card__options"
+            aria-label="Account type"
+          >
+            <button
+              type="button"
+              className="welcome-role-button"
+              onClick={() => handleRoleSelection("glass-user")}
+            >
+              <span>Glass User</span>
+            </button>
+
+            <button
+              type="button"
+              className="welcome-role-button"
+              onClick={() => handleRoleSelection("family-member")}
+            >
+              <span>Family Member</span>
+            </button>
+
+            <button
+              type="button"
+              className="welcome-role-button"
+              onClick={() => handleRoleSelection("agent")}
+            >
+              <span>Agent</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export default WelcomeScreen;
