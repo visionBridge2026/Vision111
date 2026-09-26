@@ -80,30 +80,34 @@ function ScanGlass() {
         },
 
         async (decodedText) => {
-          console.log("QR Code:", decodedText);
+  console.log("QR Code:", decodedText);
 
-          setScanResult(decodedText);
+  setScanResult(decodedText);
 
-          try {
-            await scanner.stop();
-          } catch (error) {
-            console.warn(
-              "Could not stop scanner after successful scan:",
-              error
-            );
-          }
+  try {
+    await scanner.stop();
+  } catch (error) {
+    console.warn(
+      "Could not stop scanner after successful scan:",
+      error
+    );
+  }
 
-          /*
-           * IMPORTANT:
-           * Later we will send decodedText to Django.
-           *
-           * Example:
-           *
-           * POST /api/users/verify-qr/
-           *
-           * For now we only detect the QR code.
-           */
-        },
+  scannerRef.current = null;
+
+  /*
+   * QR verification will be connected to Django later.
+   *
+   * For now, a successful scan opens
+   * the Glass User Dashboard.
+   */
+
+  setTimeout(() => {
+    setShowQrModal(false);
+
+    navigate("/user-dashboard");
+  }, 700);
+},
 
         () => {
           // Normal scanning:
