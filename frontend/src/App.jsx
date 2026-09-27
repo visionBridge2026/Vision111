@@ -1,5 +1,5 @@
 import React from "react";
-import WelcomeScreen from "./components/WelcomeScreen/WelcomeScreen";
+import WelcomeScreen from "./app/pages/WelcomeScreen";
 
 function App() {
   return <WelcomeScreen />;
