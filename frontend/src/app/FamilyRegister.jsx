@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Modal,
@@ -14,18 +15,24 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 
+// Change this to your computer's LAN IP when testing on a physical phone.
+// Example: http://192.168.1.3:8000
+const API_URL = "http://192.168.1.142:8000";
+
 function FamilyRegister() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [relationship, setRelationship] = useState("");
   const [glassId, setGlassId] = useState("");
+  const [pairingToken, setPairingToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showQrModal, setShowQrModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (
       !fullName.trim() ||
       !email.trim() ||
@@ -50,18 +57,92 @@ function FamilyRegister() {
       return;
     }
 
-    /*
-     * Temporary registration flow.
-     *
-     * Later this will:
-     * 1. Send the registration information to Django.
-     * 2. Create the family account.
-     * 3. Link the VisionBridge glasses.
-     * 4. Receive authentication tokens.
-     * 5. Navigate to FamilyDashboard.
-     */
+    if (password.length < 8) {
+      Alert.alert(
+        "Password too short",
+        "Your password must contain at least 8 characters."
+      );
+      return;
+    }
 
-    router.replace("/FamilyDashboard");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/users/family/register/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            full_name: fullName.trim(),
+            email: email.trim().toLowerCase(),
+            phone: phoneNumber.trim(),
+            relationship: relationship.trim(),
+            password,
+            glasses: [
+              {
+                device_id: glassId.trim(),
+                pairing_token: pairingToken.trim(),
+              },
+            ],
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message =
+          data?.message ||
+          data?.detail ||
+          "Registration failed. Please check your information and try again.";
+
+        Alert.alert("Registration failed", message);
+        return;
+      }
+
+      /*
+       * Registration succeeded.
+       *
+       * The Django backend returns:
+       * - access token
+       * - refresh token
+       * - family member information
+       */
+
+      if (data.tokens?.access) {
+        // Temporary storage.
+        // We will replace this with a proper auth storage system
+        // when we connect FamilyLogin.
+        global.familyAccessToken = data.tokens.access;
+      }
+
+      if (data.tokens?.refresh) {
+        global.familyRefreshToken = data.tokens.refresh;
+      }
+
+      Alert.alert(
+        "Account created",
+        "Your Family Member account has been created successfully.",
+        [
+          {
+            text: "Continue",
+            onPress: () => router.replace("/FamilyDashboard"),
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Family registration error:", error);
+
+      Alert.alert(
+        "Connection error",
+        "Could not connect to the VisionBridge server. Make sure Django is running and the API address is correct."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleScanGlass = () => {
@@ -90,6 +171,7 @@ function FamilyRegister() {
               accessibilityRole="button"
               accessibilityLabel="Go back"
               accessibilityHint="Return to the previous screen"
+              disabled={isLoading}
             >
               <Text style={styles.backButtonText}>‹ Back</Text>
             </Pressable>
@@ -115,6 +197,7 @@ function FamilyRegister() {
             </Text>
 
             <View style={styles.form}>
+              {/* FULL NAME */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Full Name</Text>
 
@@ -127,9 +210,11 @@ function FamilyRegister() {
                   autoCapitalize="words"
                   textContentType="name"
                   accessibilityLabel="Full name"
+                  editable={!isLoading}
                 />
               </View>
 
+              {/* EMAIL */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email</Text>
 
@@ -144,9 +229,11 @@ function FamilyRegister() {
                   keyboardType="email-address"
                   textContentType="emailAddress"
                   accessibilityLabel="Email address"
+                  editable={!isLoading}
                 />
               </View>
 
+              {/* PHONE */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Phone Number</Text>
 
@@ -159,9 +246,11 @@ function FamilyRegister() {
                   keyboardType="phone-pad"
                   textContentType="telephoneNumber"
                   accessibilityLabel="Phone number"
+                  editable={!isLoading}
                 />
               </View>
 
+              {/* RELATIONSHIP */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>
                   Relationship to Glass User
@@ -175,9 +264,11 @@ function FamilyRegister() {
                   placeholderTextColor="#7E8CA3"
                   autoCapitalize="sentences"
                   accessibilityLabel="Relationship to glass user"
+                  editable={!isLoading}
                 />
               </View>
 
+              {/* GLASSES */}
               <View style={styles.glassSection}>
                 <View style={styles.sectionHeading}>
                   <View style={styles.sectionHeadingText}>
@@ -186,8 +277,8 @@ function FamilyRegister() {
                     </Text>
 
                     <Text style={styles.sectionDescription}>
-                      Enter the glass ID or scan the QR code shown by the
-                      VisionBridge glasses.
+                      Enter the glass ID and pairing token, or scan the
+                      QR code shown by the VisionBridge glasses.
                     </Text>
                   </View>
                 </View>
@@ -201,9 +292,27 @@ function FamilyRegister() {
                     onChangeText={setGlassId}
                     placeholder="Enter glass ID"
                     placeholderTextColor="#7E8CA3"
-                    autoCapitalize="characters"
+                    autoCapitalize="none"
                     autoCorrect={false}
                     accessibilityLabel="VisionBridge glass ID"
+                    editable={!isLoading}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Pairing Token</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    value={pairingToken}
+                    onChangeText={setPairingToken}
+                    placeholder="Enter pairing token"
+                    placeholderTextColor="#7E8CA3"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    secureTextEntry
+                    accessibilityLabel="VisionBridge pairing token"
+                    editable={!isLoading}
                   />
                 </View>
 
@@ -211,11 +320,13 @@ function FamilyRegister() {
                   style={({ pressed }) => [
                     styles.scanButton,
                     pressed && styles.buttonPressed,
+                    isLoading && styles.buttonDisabled,
                   ]}
                   onPress={handleScanGlass}
                   accessibilityRole="button"
                   accessibilityLabel="Scan VisionBridge glass QR code"
                   accessibilityHint="Open the QR code scanner"
+                  disabled={isLoading}
                 >
                   <Text
                     style={styles.scanButtonIcon}
@@ -230,6 +341,7 @@ function FamilyRegister() {
                 </Pressable>
               </View>
 
+              {/* PASSWORD */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Password</Text>
 
@@ -242,9 +354,11 @@ function FamilyRegister() {
                   secureTextEntry
                   textContentType="newPassword"
                   accessibilityLabel="Password"
+                  editable={!isLoading}
                 />
               </View>
 
+              {/* CONFIRM PASSWORD */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Confirm Password</Text>
 
@@ -257,29 +371,49 @@ function FamilyRegister() {
                   secureTextEntry
                   textContentType="newPassword"
                   accessibilityLabel="Confirm password"
+                  editable={!isLoading}
                 />
               </View>
 
+              {/* REGISTER */}
               <Pressable
                 style={({ pressed }) => [
                   styles.createButton,
                   pressed && styles.buttonPressed,
+                  isLoading && styles.buttonDisabled,
                 ]}
                 onPress={handleRegister}
                 accessibilityRole="button"
                 accessibilityLabel="Create family account"
                 accessibilityHint="Create your VisionBridge family account"
+                disabled={isLoading}
               >
-                <Text style={styles.createButtonText}>
-                  Create Family Account
-                </Text>
+                {isLoading ? (
+                  <>
+                    <ActivityIndicator
+                      size="small"
+                      color="#FFFFFF"
+                      accessibilityLabel="Creating account"
+                    />
+
+                    <Text style={styles.loadingText}>
+                      Creating Account...
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={styles.createButtonText}>
+                    Create Family Account
+                  </Text>
+                )}
               </Pressable>
 
+              {/* LOGIN */}
               <Pressable
                 style={styles.loginLink}
                 onPress={() => router.replace("/FamilyLogin")}
                 accessibilityRole="button"
-                accessibilityLabel="Already have an account"
+                accessibilityLabel="Already have an account? Log in"
+                disabled={isLoading}
               >
                 <Text style={styles.loginLinkText}>
                   Already have an account?{" "}
@@ -292,6 +426,7 @@ function FamilyRegister() {
           </View>
         </ScrollView>
 
+        {/* QR MODAL */}
         <Modal
           visible={showQrModal}
           transparent
@@ -538,6 +673,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     marginTop: 2,
+    flexDirection: "row",
+    gap: 10,
   },
 
   createButtonText: {
@@ -546,8 +683,18 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
+  loadingText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
   buttonPressed: {
     opacity: 0.75,
+  },
+
+  buttonDisabled: {
+    opacity: 0.6,
   },
 
   loginLink: {

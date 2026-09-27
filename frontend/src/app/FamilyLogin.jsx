@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Modal,
@@ -14,32 +15,89 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 
+// Use your computer's LAN IP when testing on a physical phone.
+// Example:
+// const API_URL = "http://192.168.1.3:8000";
+
+const API_URL = "http://192.168.1.142:8000";
+
 function FamilyLogin() {
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    if (!username.trim() || !password) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password) {
       Alert.alert(
         "Missing information",
-        "Please enter your username and password."
+        "Please enter your email address and password."
       );
       return;
     }
 
-    /*
-     * Temporary navigation.
-     *
-     * Later this will:
-     * 1. Send username/password to Django.
-     * 2. Receive JWT access/refresh tokens.
-     * 3. Store the tokens securely.
-     * 4. Navigate to FamilyDashboard.
-     */
+    setIsLoading(true);
 
-    setShowLoginModal(false);
-    router.replace("/FamilyDashboard");
+    try {
+      const response = await fetch(
+        `${API_URL}/api/users/family/login/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim().toLowerCase(),
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message =
+          data?.message ||
+          data?.detail ||
+          "Login failed. Please check your email and password.";
+
+        Alert.alert("Login failed", message);
+        return;
+      }
+
+      /*
+       * Successful Django response contains:
+       *
+       * tokens.access
+       * tokens.refresh
+       * family_member
+       */
+
+      if (data.tokens?.access) {
+        // Temporary token storage for testing.
+        // We will replace this with expo-secure-store
+        // when we build the proper authentication layer.
+        global.familyAccessToken = data.tokens.access;
+      }
+
+      if (data.tokens?.refresh) {
+        global.familyRefreshToken = data.tokens.refresh;
+      }
+
+      setShowLoginModal(false);
+
+      router.replace("/FamilyDashboard");
+    } catch (error) {
+      console.error("Family login error:", error);
+
+      Alert.alert(
+        "Connection error",
+        "Could not connect to the VisionBridge server. Make sure Django is running and the API address is correct."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCreateAccount = () => {
@@ -62,8 +120,17 @@ function FamilyLogin() {
             accessible
             accessibilityLabel="Family member login"
           >
-            <View style={styles.logoPlaceholder}>
-              <Text style={styles.logoText}>VB</Text>
+            <View
+              style={styles.logoPlaceholder}
+              accessible
+              accessibilityLabel="VisionBridge"
+            >
+              <Text
+                style={styles.logoText}
+                accessibilityElementsHidden
+              >
+                VB
+              </Text>
             </View>
 
             <Text
@@ -82,11 +149,13 @@ function FamilyLogin() {
                 style={({ pressed }) => [
                   styles.primaryButton,
                   pressed && styles.buttonPressed,
+                  isLoading && styles.buttonDisabled,
                 ]}
                 onPress={() => setShowLoginModal(true)}
                 accessibilityRole="button"
                 accessibilityLabel="I already have an account"
                 accessibilityHint="Opens the family member login form"
+                disabled={isLoading}
               >
                 <Text style={styles.primaryButtonText}>
                   I Have an Account
@@ -97,11 +166,13 @@ function FamilyLogin() {
                 style={({ pressed }) => [
                   styles.secondaryButton,
                   pressed && styles.buttonPressed,
+                  isLoading && styles.buttonDisabled,
                 ]}
                 onPress={handleCreateAccount}
                 accessibilityRole="button"
                 accessibilityLabel="Create a new family member account"
                 accessibilityHint="Opens the registration form"
+                disabled={isLoading}
               >
                 <Text style={styles.secondaryButtonText}>
                   I'm New Here
@@ -113,10 +184,12 @@ function FamilyLogin() {
               style={({ pressed }) => [
                 styles.backButton,
                 pressed && styles.buttonPressed,
+                isLoading && styles.buttonDisabled,
               ]}
               onPress={() => router.back()}
               accessibilityRole="button"
               accessibilityLabel="Go back"
+              disabled={isLoading}
             >
               <Text style={styles.backButtonText}>Back</Text>
             </Pressable>
@@ -127,7 +200,11 @@ function FamilyLogin() {
           visible={showLoginModal}
           transparent
           animationType="fade"
-          onRequestClose={() => setShowLoginModal(false)}
+          onRequestClose={() => {
+            if (!isLoading) {
+              setShowLoginModal(false);
+            }
+          }}
         >
           <View style={styles.modalOverlay}>
             <KeyboardAvoidingView
@@ -159,6 +236,7 @@ function FamilyLogin() {
                     onPress={() => setShowLoginModal(false)}
                     accessibilityRole="button"
                     accessibilityLabel="Close login"
+                    disabled={isLoading}
                   >
                     <Text
                       style={styles.closeButtonText}
@@ -170,23 +248,29 @@ function FamilyLogin() {
                 </View>
 
                 <View style={styles.form}>
+                  {/* EMAIL */}
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Username</Text>
+                    <Text style={styles.label}>
+                      Email Address
+                    </Text>
 
                     <TextInput
                       style={styles.input}
-                      value={username}
-                      onChangeText={setUsername}
-                      placeholder="Enter your username"
+                      value={email}
+                      onChangeText={setEmail}
+                      placeholder="Enter your email"
                       placeholderTextColor="#7E8CA3"
                       autoCapitalize="none"
                       autoCorrect={false}
-                      textContentType="username"
-                      accessibilityLabel="Username"
-                      accessibilityHint="Enter your VisionBridge username"
+                      keyboardType="email-address"
+                      textContentType="emailAddress"
+                      accessibilityLabel="Email address"
+                      accessibilityHint="Enter the email address used to create your family account"
+                      editable={!isLoading}
                     />
                   </View>
 
+                  {/* PASSWORD */}
                   <View style={styles.inputGroup}>
                     <Text style={styles.label}>Password</Text>
 
@@ -199,32 +283,57 @@ function FamilyLogin() {
                       secureTextEntry
                       textContentType="password"
                       accessibilityLabel="Password"
-                      accessibilityHint="Enter your VisionBridge password"
+                      accessibilityHint="Enter your family account password"
+                      editable={!isLoading}
                     />
                   </View>
 
+                  {/* LOGIN */}
                   <Pressable
                     style={({ pressed }) => [
                       styles.loginButton,
                       pressed && styles.buttonPressed,
+                      isLoading && styles.buttonDisabled,
                     ]}
                     onPress={handleLogin}
                     accessibilityRole="button"
                     accessibilityLabel="Log in"
+                    accessibilityHint="Sign in to your VisionBridge family account"
+                    disabled={isLoading}
                   >
-                    <Text style={styles.loginButtonText}>
-                      Log In
-                    </Text>
+                    {isLoading ? (
+                      <>
+                        <ActivityIndicator
+                          size="small"
+                          color="#FFFFFF"
+                          accessibilityLabel="Logging in"
+                        />
+
+                        <Text style={styles.loginButtonText}>
+                          Logging In...
+                        </Text>
+                      </>
+                    ) : (
+                      <Text style={styles.loginButtonText}>
+                        Log In
+                      </Text>
+                    )}
                   </Pressable>
 
+                  {/* REGISTER */}
                   <Pressable
                     style={styles.switchButton}
                     onPress={() => {
+                      if (isLoading) {
+                        return;
+                      }
+
                       setShowLoginModal(false);
                       router.push("/FamilyRegister");
                     }}
                     accessibilityRole="button"
                     accessibilityLabel="Create a new family account"
+                    disabled={isLoading}
                   >
                     <Text style={styles.switchButtonText}>
                       Don't have an account?{" "}
@@ -346,7 +455,10 @@ const styles = StyleSheet.create({
 
   buttonPressed: {
     opacity: 0.75,
-    transform: [{ scale: 0.98 }],
+  },
+
+  buttonDisabled: {
+    opacity: 0.6,
   },
 
   backButton: {
@@ -457,6 +569,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 4,
+    flexDirection: "row",
+    gap: 10,
   },
 
   loginButtonText: {

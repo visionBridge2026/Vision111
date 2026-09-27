@@ -148,7 +148,7 @@ function WelcomeScreen() {
 const styles = StyleSheet.create({
   splash: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#071A33",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
 
   page: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#071A33",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     lineHeight: 38,
     fontWeight: "700",
     textAlign: "center",
-    color: "#111827",
+    color: "#FFFFFF",
     marginBottom: 12,
   },
 
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 26,
     textAlign: "center",
-    color: "#374151",
+    color: "#7a818c",
     marginBottom: 32,
   },
 
