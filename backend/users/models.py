@@ -91,3 +91,36 @@ class Device(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.device_id})"
+
+
+class FamilyMember(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="family_member",
+    )
+
+    full_name = models.CharField(
+        max_length=150,
+    )
+
+    relationship = models.CharField(
+        max_length=50,
+    )
+
+    glasses = models.ManyToManyField(
+        Device,
+        related_name="family_members",
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return self.full_name
